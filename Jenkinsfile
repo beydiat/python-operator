@@ -17,7 +17,7 @@ pipeline {
         
         
 
-        stage('Code Checkout') {
+        stage('Build Env') {
             steps {
                 sh "ls -la && pwd"
             }
@@ -26,16 +26,25 @@ pipeline {
         stage(' Unit Testing') {
             steps {
                 sh """
-                echo "Running Unit Tests"
+                pytest -v --cov-report xml:coverage.xml --cov=. --junitxml=result.xml  app/tests/
+                ls -la
                 """
             }
         }
 
         stage('Code Analysis') {
             steps {
-                sh """
-                echo "Running Code Analysis"
-                """
+                withSonarQubeEnv(credentialsId: 'sonar', installationName: 'SONAR') { // You can override the credential to be used
+                sh "/scanner/bin/sonar-scanner \
+                    -Dsonar.projectKey=python-operator \
+                    -Dsonar.projectName=python-operator \
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.sources= app \
+                    -sonar.language=py \
+                    -Dsonar.sourceEncoding=UTF-8 \
+                    -Dsonar.python.xunit.reportPath=result.xml  \
+                    -Dsonar.python.coverage.reportPath=coverage.xml" 
+                }
             }
         }
 
