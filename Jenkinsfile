@@ -27,23 +27,23 @@ pipeline {
             steps {
                 sh """
                 pytest -v --cov-report xml:coverage.xml --cov=. --junitxml=result.xml  app/tests/
-                ls -la
                 """
             }
         }
 
         stage('Code Analysis') {
             steps {
+                sh "ls -la && pwd"
                 withSonarQubeEnv(credentialsId: 'sonar', installationName: 'SONAR') { // You can override the credential to be used
-                sh "/scanner/bin/sonar-scanner \
-                    -Dsonar.projectKey=python-operator \
-                    -Dsonar.projectName=python-operator \
-                    -Dsonar.projectVersion=1.0 \
-                    -Dsonar.sources= app \
-                    -sonar.language=py \
-                    -Dsonar.sourceEncoding=UTF-8 \
-                    -Dsonar.python.xunit.reportPath=result.xml  \
-                    -Dsonar.python.coverage.reportPath=coverage.xml" 
+                    sh "/scanner/bin/sonar-scanner \
+                        -Dsonar.projectKey=python-operator \
+                        -Dsonar.projectName=python-operator \
+                        -Dsonar.projectVersion=1.0 \
+                        -Dsonar.sources= app \
+                        -Dsonar.language=py \
+                        -Dsonar.sourceEncoding=UTF-8 \
+                        -Dsonar.python.xunit.reportPath=result.xml  \
+                        -Dsonar.python.coverage.reportPath=coverage.xml" 
                 }
             }
         }
