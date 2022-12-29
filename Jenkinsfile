@@ -35,11 +35,12 @@ pipeline {
             steps {
                 sh "ls -la && pwd"
                 withSonarQubeEnv(credentialsId: 'sonar', installationName: 'SONAR') { // You can override the credential to be used
-                    sh "/scanner/bin/sonar-scanner \
+                    sh "/opt/sonar-scanner/bin/sonar-scanner \
                         -Dsonar.projectKey=python-operator \
                         -Dsonar.projectName=python-operator \
                         -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources= app \
+                        -Dsonar.sources=app \
+                        -Dsonar.exclusions=app/tests \
                         -Dsonar.language=py \
                         -Dsonar.sourceEncoding=UTF-8 \
                         -Dsonar.python.xunit.reportPath=result.xml  \
