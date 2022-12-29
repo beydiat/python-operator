@@ -34,17 +34,19 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 sh "ls -la && pwd"
-                withSonarQubeEnv(credentialsId: 'sonar', installationName: 'SONAR') { // You can override the credential to be used
+                withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
                     sh "/opt/sonar-scanner/bin/sonar-scanner \
                         -Dsonar.projectKey=python-operator \
                         -Dsonar.projectName=python-operator \
                         -Dsonar.projectVersion=1.0 \
                         -Dsonar.sources=app \
                         -Dsonar.exclusions=app/tests \
+                        -Dsonar.branch.name=develop \
                         -Dsonar.language=py \
                         -Dsonar.sourceEncoding=UTF-8 \
                         -Dsonar.python.xunit.reportPath=result.xml  \
-                        -Dsonar.python.coverage.reportPath=coverage.xml" 
+                        -Dsonar.python.coverage.reportPaths=coverage.xml" 
+                        
                 }
             }
         }
