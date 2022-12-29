@@ -41,7 +41,6 @@ pipeline {
                         -Dsonar.projectVersion=1.0 \
                         -Dsonar.sources=app \
                         -Dsonar.exclusions=app/tests \
-                        -Dsonar.branch.name=develop \
                         -Dsonar.language=py \
                         -Dsonar.sourceEncoding=UTF-8 \
                         -Dsonar.python.xunit.reportPath=result.xml  \
