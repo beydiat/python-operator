@@ -40,6 +40,7 @@ pipeline {
                 }
             }
         }
+        /*
         stage('Check Params') {
             steps {
                 sh """
@@ -49,7 +50,7 @@ pipeline {
                 return
             }
         }
-
+        */
         stage('Unit Testing') {
             steps {
                 sh """
