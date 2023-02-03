@@ -21,6 +21,11 @@ pipeline {
                     properties([
                         parameters([
                             booleanParam(
+                                name: 'TEST',
+                                description: 'Lancer les tests unitaires',
+                                defaultValue: true
+                            ),
+                            booleanParam(
                                 name: 'QUALITY',
                                 description: 'Lancer analyse Sonar',
                                 defaultValue: true
@@ -29,11 +34,6 @@ pipeline {
                                 name: 'DEPLOY',
                                 description: 'Déployer sur AWS',
                                 defaultValue: false
-                            ),
-                            booleanParam(
-                                name: 'DRY_RUN',
-                                description: 'Lancer dry run',
-                                defaultValue: false
                             )
                         ])
                     ])
@@ -41,24 +41,12 @@ pipeline {
             }
         }
         
-        stage('Check Params') {
+        stage('Unit Testing') {
             when {
                 expression { 
-                   return params.DRY_RUN == true
+                   return params.TEST == true
                 }
             }
-            steps {
-                script {
-                    sh """
-                        echo "Dry Run"
-                    """
-                    currentBuild.result = 'SUCCESS'
-                    return
-                }
-            }
-        }
-        
-        stage('Unit Testing') {
             steps {
                 sh """
                 pytest -v --cov-report xml:coverage.xml --cov=. --junitxml=result.xml  app/tests/
