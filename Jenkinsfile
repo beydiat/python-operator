@@ -41,9 +41,6 @@ pipeline {
             }
         }
         stage('Check Params') {
-            when {
-                params.DRY_RUN 'true'
-            }
             steps {
                 sh """
                     echo "Dry Run"
@@ -62,9 +59,6 @@ pipeline {
         }
         
         stage('Code Analysis') {
-            when {
-                params.QUALITY 'true'
-            }
             steps {
                 sh "ls -la && pwd"
                 withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
@@ -84,7 +78,7 @@ pipeline {
         }
         stage('Build Deploy Code') {
             when {
-                params.DEPLOY 'true'
+                branch 'master'
             }
             steps {
             
