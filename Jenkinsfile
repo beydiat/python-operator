@@ -18,25 +18,10 @@ pipeline {
         stage('Init') {
             steps {
                 script {
-                    properties([
-                        parameters([
-                            booleanParam(
-                                name: 'QUALITY',
-                                description: 'Lancer analyse Sonar',
-                                defaultValue: true
-                            ),
-                            booleanParam(
-                                name: 'DEPLOY',
-                                description: 'Déployer sur AWS',
-                                defaultValue: false
-                            ),
-                            booleanParam(
-                                name: 'DRY_RUN',
-                                description: 'Lancer dry run',
-                                defaultValue: false
-                            )
-                        ])
-                    ])
+                     sh """
+                        echo "Init stage"
+                    """
+                    
                 }
             }
         }
