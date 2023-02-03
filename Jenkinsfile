@@ -40,17 +40,24 @@ pipeline {
                 }
             }
         }
-        /*
+        
         stage('Check Params') {
+            when {
+                expression { 
+                   return params.DRY_RUN == 'true'
+                }
+            }
             steps {
-                sh """
-                    echo "Dry Run"
-                """
-                currentBuild.result = 'SUCCESS'
-                return
+                script {
+                    sh """
+                        echo "Dry Run"
+                    """
+                    currentBuild.result = 'SUCCESS'
+                    return
+                }
             }
         }
-        */
+        
         stage('Unit Testing') {
             steps {
                 sh """
@@ -60,6 +67,11 @@ pipeline {
         }
         
         stage('Code Analysis') {
+            when {
+                expression { 
+                   return params.QUALITY == 'true'
+                }
+            }
             steps {
                 sh "ls -la && pwd"
                 withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
@@ -79,7 +91,9 @@ pipeline {
         }
         stage('Build Deploy Code') {
             when {
-                branch 'master'
+                expression { 
+                   return params.DEPLOY == 'true'
+                }
             }
             steps {
             
