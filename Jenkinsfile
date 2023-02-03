@@ -15,12 +15,37 @@ pipeline {
 
     stages {
         
-        
-
-        stage('Build Env') {
+        stage('Init') {
             steps {
-                sh "ls -la && pwd"
+                script {
+                    properties([
+                        parameters([
+                            booleanParam(
+                                name: 'QUALITY',
+                                description: 'Lancer analyse Sonar',
+                                defaultValue: true
+                            ),
+                            booleanParam(
+                                name: 'DEPLOY',
+                                description: 'Déployer sur AWS',
+                                defaultValue: false
+                            ),
+                            booleanParam(
+                                name: 'DRY_RUN',
+                                description: 'Lancer dry run',
+                                defaultValue: false
+                            )
+                        ])
+                    ])
+                }
             }
+        }
+        if(params.DRY_RUN){
+            sh """
+                echo "Dry Run"
+            """
+            currentBuild.result = 'SUCCESS'
+            return
         }
 
         stage(' Unit Testing') {
@@ -30,50 +55,46 @@ pipeline {
                 """
             }
         }
-
-        stage('Code Analysis') {
-            steps {
-                sh "ls -la && pwd"
-                /*
-                withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
-                    sh """/opt/sonar-scanner/bin/sonar-scanner \
-                        -Dsonar.projectKey=python-operator \
-                        -Dsonar.projectName=python-operator \
-                        -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources=app \
-                        -Dsonar.exclusions=app/tests/** \
-                        -Dsonar.language=py \
-                        -Dsonar.sourceEncoding=UTF-8 \
-                        -Dsonar.python.xunit.reportPath=result.xml  \
-                        -Dsonar.python.coverage.reportPaths=coverage.xml""" 
-                        
+        if (params.QUALITY) {
+            stage('Code Analysis') {
+                steps {
+                    sh "ls -la && pwd"
+                    withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
+                        sh """/opt/sonar-scanner/bin/sonar-scanner \
+                            -Dsonar.projectKey=python-operator \
+                            -Dsonar.projectName=python-operator \
+                            -Dsonar.projectVersion=1.0 \
+                            -Dsonar.sources=app \
+                            -Dsonar.exclusions=app/tests/** \
+                            -Dsonar.language=py \
+                            -Dsonar.sourceEncoding=UTF-8 \
+                            -Dsonar.python.xunit.reportPath=result.xml  \
+                            -Dsonar.python.coverage.reportPaths=coverage.xml""" 
+                            
+                    }
                 }
-                */
             }
         }
-
-        stage('Build Deploy Code') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'SECRET')]) { //set SECRET with the credential content
-                    echo "My secret text is '${SECRET}'"
-                    sh"""
-                      sed -i -e 's/TF_TOKEN_FOR_TF_CLOUD/${SECRET}' ./ias/backend.tf
+        if (params.DEPLOY) {
+            stage('Build Deploy Code') {
+                when {
+                    branch 'develop'
+                }
+                steps {
+                    withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'SECRET')]) { //set SECRET with the credential content
+                        echo "My secret text is '${SECRET}'"
+                        sh"""
+                        sed -i -e 's/TF_TOKEN_FOR_TF_CLOUD/${SECRET}/' ./ias/backend.tf
+                        """
+                    }
+                    sh """
+                    echo "Building Artifact"
+                    cd ./ias
+                    terraform init
+                    terraform plan
+                    terraform apply
                     """
                 }
-                sh """
-                echo "Building Artifact"
-                cd ./ias
-                cat backend.tf
-                terraform init
-                terraform plan
-                """
-
-                sh """
-                echo "Deploying Code"
-                """
             }
         }
         stage('Cleanup Workspace') {
