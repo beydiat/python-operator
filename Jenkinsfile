@@ -18,10 +18,25 @@ pipeline {
         stage('Init') {
             steps {
                 script {
-                     sh """
-                        echo "Init stage"
-                    """
-                    
+                    properties([
+                        parameters([
+                            booleanParam(
+                                name: 'QUALITY',
+                                description: 'Lancer analyse Sonar',
+                                defaultValue: true
+                            ),
+                            booleanParam(
+                                name: 'DEPLOY',
+                                description: 'Déployer sur AWS',
+                                defaultValue: false
+                            ),
+                            booleanParam(
+                                name: 'DRY_RUN',
+                                description: 'Lancer dry run',
+                                defaultValue: false
+                            )
+                        ])
+                    ])
                 }
             }
         }
@@ -29,7 +44,7 @@ pipeline {
         stage('Check Params') {
             when {
                 expression { 
-                   return params.DRY_RUN == 'true'
+                   return params.DRY_RUN == true
                 }
             }
             steps {
@@ -54,7 +69,7 @@ pipeline {
         stage('Code Analysis') {
             when {
                 expression { 
-                   return params.QUALITY == 'true'
+                   return params.QUALITY == true
                 }
             }
             steps {
@@ -77,7 +92,7 @@ pipeline {
         stage('Build Deploy Code') {
             when {
                 expression { 
-                   return params.DEPLOY == 'true'
+                   return params.DEPLOY == true
                 }
             }
             steps {
