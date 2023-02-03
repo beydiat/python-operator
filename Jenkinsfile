@@ -41,8 +41,8 @@ pipeline {
             }
         }
         stage('Check Params') {
-            steps {
-                if(params.DRY_RUN){
+            if (params.DRY_RUN){
+                steps {
                     sh """
                         echo "Dry Run"
                     """
@@ -61,8 +61,8 @@ pipeline {
         }
         
         stage('Code Analysis') {
-            steps {
-                if (params.QUALITY) {
+            if (params.QUALITY) {
+                steps {
                     sh "ls -la && pwd"
                     withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
                         sh """/opt/sonar-scanner/bin/sonar-scanner \
@@ -84,8 +84,9 @@ pipeline {
             when {
                 branch 'develop'
             }
-            steps {
-                if (params.DEPLOY) {
+            if (params.DEPLOY) {
+                steps {
+                
                     withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'SECRET')]) { //set SECRET with the credential content
                         echo "My secret text is '${SECRET}'"
                         sh"""
