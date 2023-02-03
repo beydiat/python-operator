@@ -40,24 +40,29 @@ pipeline {
                 }
             }
         }
-        if(params.DRY_RUN){
-            sh """
-                echo "Dry Run"
-            """
-            currentBuild.result = 'SUCCESS'
-            return
+        stage('Check Params') {
+            steps {
+                if(params.DRY_RUN){
+                    sh """
+                        echo "Dry Run"
+                    """
+                    currentBuild.result = 'SUCCESS'
+                    return
+                }
+            }
         }
 
-        stage(' Unit Testing') {
+        stage('Unit Testing') {
             steps {
                 sh """
                 pytest -v --cov-report xml:coverage.xml --cov=. --junitxml=result.xml  app/tests/
                 """
             }
         }
-        if (params.QUALITY) {
-            stage('Code Analysis') {
-                steps {
+        
+        stage('Code Analysis') {
+            steps {
+                if (params.QUALITY) {
                     sh "ls -la && pwd"
                     withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
                         sh """/opt/sonar-scanner/bin/sonar-scanner \
@@ -75,12 +80,12 @@ pipeline {
                 }
             }
         }
-        if (params.DEPLOY) {
-            stage('Build Deploy Code') {
-                when {
-                    branch 'develop'
-                }
-                steps {
+        stage('Build Deploy Code') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                if (params.DEPLOY) {
                     withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'SECRET')]) { //set SECRET with the credential content
                         echo "My secret text is '${SECRET}'"
                         sh"""
