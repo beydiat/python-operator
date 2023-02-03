@@ -34,6 +34,7 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 sh "ls -la && pwd"
+                /*
                 withSonarQubeEnv(installationName: 'SONAR') { // You can override the credential to be used
                     sh """/opt/sonar-scanner/bin/sonar-scanner \
                         -Dsonar.projectKey=python-operator \
@@ -47,6 +48,7 @@ pipeline {
                         -Dsonar.python.coverage.reportPaths=coverage.xml""" 
                         
                 }
+                */
             }
         }
 
@@ -55,9 +57,16 @@ pipeline {
                 branch 'develop'
             }
             steps {
+                withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'SECRET')]) { //set SECRET with the credential content
+                    echo "My secret text is '${SECRET}'"
+                    sh"""
+                      sed -i -e 's/TF_TOKEN_FOR_TF_CLOUD/${SECRET}' ./ias/backend.tf
+                    """
+                }
                 sh """
                 echo "Building Artifact"
                 cd ./ias
+                cat backend.tf
                 terraform init
                 terraform plan
                 """
