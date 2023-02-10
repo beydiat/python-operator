@@ -73,7 +73,7 @@ pipeline {
                         -Dsonar.projectName=python-operator \
                         -Dsonar.projectVersion=1.0 \
                         -Dsonar.sources=app,ias/lambda \
-                        -Dsonar.exclusions=app/tests/**, ias/lambda/tests/** \
+                        -Dsonar.exclusions=app/tests/**,ias/lambda/tests/** \
                         -Dsonar.language=py \
                         -Dsonar.sourceEncoding=UTF-8 \
                         -Dsonar.python.xunit.reportPath=result.xml  \
