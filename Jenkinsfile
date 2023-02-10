@@ -72,7 +72,7 @@ pipeline {
                         -Dsonar.projectKey=python-operator \
                         -Dsonar.projectName=python-operator \
                         -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources=app, ias \
+                        -Dsonar.sources=app,ias \
                         -Dsonar.exclusions=app/tests/**, ias/lambda/tests/** \
                         -Dsonar.language=py \
                         -Dsonar.sourceEncoding=UTF-8 \
