@@ -34,6 +34,11 @@ pipeline {
                                 name: 'DEPLOY',
                                 description: 'Déployer sur AWS',
                                 defaultValue: false
+                            ),
+                            booleanParam(
+                                name: 'DESTROY',
+                                description: 'Supprimer déploiement sur AWS',
+                                defaultValue: false
                             )
                         ])
                     ])
@@ -49,7 +54,7 @@ pipeline {
             }
             steps {
                 sh """
-                pytest -v --cov-report xml:coverage.xml --cov=. --junitxml=result.xml  app/tests/
+                pytest -v --cov-report xml:coverage.xml --cov=. --junitxml=result.xml app/tests/ ias/lambda/tests
                 """
             }
         }
@@ -97,6 +102,29 @@ pipeline {
                 terraform init
                 terraform plan
                 terraform apply
+                """
+            }
+            
+        }
+        stage('Destroy Ressources') {
+            when {
+                expression { 
+                   return params.DESTROY == true
+                }
+            }
+            steps {
+            
+                withCredentials([string(credentialsId: 'TF_TOKEN', variable: 'SECRET')]) { //set SECRET with the credential content
+                    echo "My secret text is '${SECRET}'"
+                    sh"""
+                    sed -i -e 's/TF_TOKEN_FOR_TF_CLOUD/${SECRET}/' ./ias/backend.tf
+                    """
+                }
+                sh """
+                echo "Building Artifact"
+                cd ./ias
+                terraform init
+                terraform destro
                 """
             }
             
