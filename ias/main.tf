@@ -50,6 +50,6 @@ EOF
 
 data "archive_file" "zip" {
   type        = "zip"
-  source_dir = "./../app/"
+  source_dir = "./lambda/"
   output_path = "./packedlambda.zip"
 }
