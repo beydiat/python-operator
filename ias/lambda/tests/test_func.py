@@ -6,5 +6,5 @@ def test_func():
         "statusDescription": "200 OK",
         "isBase64Encoded": False,
         "headers": {"Content-Type": "text/json; charset=utf-8"},
-        "body": "Bonjour, ce message provient de mon TP CI"
+        "body": "Bonjour, ce message provient de mon TP CI BBBBBBB"
         }
