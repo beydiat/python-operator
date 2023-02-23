@@ -1,5 +1,5 @@
 def handler(event, context):
-    body = "Bonjour, ce message provient de mon TP CI"
+    body = "Bonjour, ce message provient de mon TP CI BBBBBBB"
     response = {
         "statusCode": 200,
         "statusDescription": "200 OK",
